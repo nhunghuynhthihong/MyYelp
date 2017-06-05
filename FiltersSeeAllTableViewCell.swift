@@ -9,7 +9,7 @@
 import UIKit
 
 @objc protocol FiltersSeeAllDelegate {
-    optional func filtersSeeAllDelegate(filtersSeeAllTableViewCell: FiltersSeeAllTableViewCell, didSet title:String)
+    @objc optional func filtersSeeAllDelegate(_ filtersSeeAllTableViewCell: FiltersSeeAllTableViewCell, didSet title:String)
 }
 class FiltersSeeAllTableViewCell: UITableViewCell {
 
@@ -20,7 +20,7 @@ class FiltersSeeAllTableViewCell: UITableViewCell {
         super.awakeFromNib()
     }
     
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         
         delegate?.filtersSeeAllDelegate?(self, didSet: titleLabel.text!)

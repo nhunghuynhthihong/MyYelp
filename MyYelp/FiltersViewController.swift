@@ -7,9 +7,33 @@
 //
 
 import UIKit
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 @objc protocol FiltersViewControllerDelegate {
-    optional func filtersViewControllerDelegate( filtersViewController: FiltersViewController, didSet filters: Filters)
+    @objc optional func filtersViewControllerDelegate( _ filtersViewController: FiltersViewController, didSet filters: Filters)
 }
 class FiltersViewController: UIViewController {
     
@@ -39,11 +63,11 @@ class FiltersViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    @IBAction func onCancel(sender: AnyObject) {
-        self.dismissViewControllerAnimated(true, completion: nil)
+    @IBAction func onCancel(_ sender: AnyObject) {
+        self.dismiss(animated: true, completion: nil)
     }
     
-    @IBAction func onSearch(sender: UIBarButtonItem) {
+    @IBAction func onSearch(_ sender: UIBarButtonItem) {
         filterObject.categories = [String]()
         for (k, v) in switchValues {
             if v {
@@ -51,11 +75,11 @@ class FiltersViewController: UIViewController {
             }
         }
         self.delegate?.filtersViewControllerDelegate!(self, didSet: filterObject)
-        self.dismissViewControllerAnimated(true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
     }
     
     func getDefaultFilters() {
-        var defaulFilters = Filters()
+        let defaulFilters = Filters()
         filterObject = defaulFilters
         switchValues = [Int:Bool]()
         tableView.reloadData()
@@ -71,10 +95,10 @@ class FiltersViewController: UIViewController {
      */
 }
 extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 6
     }
-    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch section {
         case 0:
             return nil
@@ -88,7 +112,7 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
             return nil
         }
     }
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
         case 0:
             return 1
@@ -104,20 +128,20 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
             return 0
         }
     }
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch indexPath.section {
         case 0:
-            let cell = tableView.dequeueReusableCellWithIdentifier("SwitchCell") as! FiltersSwitchTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "SwitchCell") as! FiltersSwitchTableViewCell
             cell.delegate = self
             cell.titleLabel.text = "Offering a Deal"
-            cell.optionSwitch.on = filterObject.hasDeal
+            cell.optionSwitch.isOn = filterObject.hasDeal
             return cell
         case 1:
-            let cell = tableView.dequeueReusableCellWithIdentifier("DropdownCell") as! FiltersDropdownTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "DropdownCell") as! FiltersDropdownTableViewCell
             cell.delegate = self
             
             let radius = filterObject.distance
-            cell.titleLabel.text = radius > 0 ? ((radius! % 1 == 0 ? String(format: "%.0f", radius!) : String(format: "%.1f", radius!)) + " mile(s)") : "Auto"
+            cell.titleLabel.text = radius > 0 ? ((radius!.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", radius!) : String(format: "%.1f", radius!)) + " mile(s)") : "Auto"
             if isExpandedDistance {
                 let distance = distanceValues[indexPath.row]
                 if distance == 0.0 {
@@ -126,18 +150,18 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
                         cell.dropdownImage.image = UIImage(named: "check-circle-outline")
                     }
                 } else {
-                    cell.titleLabel.text = (distance! % 1 == 0 ? String(format: "%.0f", distance!) : String(format: "%.1f", distance!)) + " mile(s)"
+                    cell.titleLabel.text = (distance!.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", distance!) : String(format: "%.1f", distance!)) + " mile(s)"
                     cell.dropdownImage.image = (radius == distanceValues[indexPath.row]) ? UIImage(named: "check-circle-outline") : UIImage(named: "check-circle-outline-blank")
                 }
             }
             return cell
         case 2:
-            let cell = tableView.dequeueReusableCellWithIdentifier("DropdownCell") as! FiltersDropdownTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "DropdownCell") as! FiltersDropdownTableViewCell
             cell.delegate = self
             cell.titleLabel.text = sortValues[indexPath.row]
             cell.dropdownImage.image = UIImage(named: distanceImg[indexPath.row])
             if filterObject.sortBy != nil {
-                let sortValue = filterObject.sortBy as! Int?
+                let sortValue = filterObject.sortBy 
                 if !isExpandedSort {
                     cell.titleLabel.text = "\(sortValues[sortValue!])"
                 } else {
@@ -150,7 +174,7 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
             }
             return cell
         case 3:
-            let cell = tableView.dequeueReusableCellWithIdentifier("SwitchCell") as! FiltersSwitchTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "SwitchCell") as! FiltersSwitchTableViewCell
             cell.delegate = self
 //            if categories[indexPath.row]["name"] == filterObject.categories
             cell.titleLabel.text = categories[indexPath.row]["name"]
@@ -160,15 +184,15 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
                     switchValues[indexPath.row] = true
                 }
             }
-            cell.optionSwitch.on = switchValues[indexPath.row]!
+            cell.optionSwitch.isOn = switchValues[indexPath.row]!
             return cell
         case 4:
-            let cell = tableView.dequeueReusableCellWithIdentifier("SeeAllCell") as! FiltersSeeAllTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "SeeAllCell") as! FiltersSeeAllTableViewCell
             cell.delegate = self
             cell.titleLabel.text = isSeeAll ? "Show less" : "See all"
             return cell
         case 5:
-            let cell = tableView.dequeueReusableCellWithIdentifier("SeeAllCell") as! FiltersSeeAllTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "SeeAllCell") as! FiltersSeeAllTableViewCell
             cell.delegate = self
             cell.titleLabel.text = "Reset"
             return cell
@@ -180,8 +204,8 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
     }
 }
 extension FiltersViewController: FiltersSwitchDelegate, FiltersDropdownDelegate, FiltersSeeAllDelegate {
-    func filtersSwitchDelegate(filtersSwitchTableViewCell: FiltersSwitchTableViewCell, didSet isSelected: Bool) {
-        let indexPath = tableView.indexPathForCell(filtersSwitchTableViewCell)
+    func filtersSwitchDelegate(_ filtersSwitchTableViewCell: FiltersSwitchTableViewCell, didSet isSelected: Bool) {
+        let indexPath = tableView.indexPath(for: filtersSwitchTableViewCell)
         if indexPath != nil {
             switch indexPath!.section {
             case 0:
@@ -193,8 +217,8 @@ extension FiltersViewController: FiltersSwitchDelegate, FiltersDropdownDelegate,
             }
          }
     }
-    func filtersDropdownDelegate(filtersDropdownTableViewCell: FiltersDropdownTableViewCell, didSet dropdownImg: UIImage) {
-        let indexPath = tableView.indexPathForCell(filtersDropdownTableViewCell)
+    func filtersDropdownDelegate(_ filtersDropdownTableViewCell: FiltersDropdownTableViewCell, didSet dropdownImg: UIImage) {
+        let indexPath = tableView.indexPath(for: filtersDropdownTableViewCell)
         if indexPath != nil {
             switch indexPath!.section {
             case 1:
@@ -210,7 +234,7 @@ extension FiltersViewController: FiltersSwitchDelegate, FiltersDropdownDelegate,
                     break
                 }
                 
-                tableView.reloadSections(NSIndexSet(index: (indexPath?.section)!), withRowAnimation: .Automatic)
+                tableView.reloadSections(IndexSet(integer: (indexPath?.section)!), with: .automatic)
             case 2:
                 switch dropdownImg {
                 case UIImage(named: "expand_arrow")!:
@@ -224,21 +248,21 @@ extension FiltersViewController: FiltersSwitchDelegate, FiltersDropdownDelegate,
                     break
                 }
                 
-                tableView.reloadSections(NSIndexSet(index: (indexPath?.section)!), withRowAnimation: .Automatic)
+                tableView.reloadSections(IndexSet(integer: (indexPath?.section)!), with: .automatic)
             default:
                 break
             }
             
         }
     }
-    func filtersSeeAllDelegate(filtersSeeAllTableViewCell: FiltersSeeAllTableViewCell, didSet title: String) {
-        let indexPath = tableView.indexPathForCell(filtersSeeAllTableViewCell)
+    func filtersSeeAllDelegate(_ filtersSeeAllTableViewCell: FiltersSeeAllTableViewCell, didSet title: String) {
+        let indexPath = tableView.indexPath(for: filtersSeeAllTableViewCell)
         if indexPath != nil {
             switch indexPath!.section {
             case 4:
                 isSeeAll = !isSeeAll
-                tableView.reloadSections(NSIndexSet(index: (3)), withRowAnimation: .Automatic)
-                tableView.reloadSections(NSIndexSet(index: (indexPath?.section)!), withRowAnimation: .Automatic)
+                tableView.reloadSections(IndexSet(integer: (3)), with: .automatic)
+                tableView.reloadSections(IndexSet(integer: (indexPath?.section)!), with: .automatic)
             case 5:
                 getDefaultFilters()
             default:

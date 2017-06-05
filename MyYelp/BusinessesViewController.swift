@@ -16,7 +16,7 @@ class BusinessesViewController: UIViewController {
     var businessArr: [Business]? = nil
     
     var searchBar: UISearchBar!
-    var myTimer = NSTimer()
+    var myTimer = Timer()
     var searchString = ""
     var filters = Filters()
     
@@ -25,8 +25,8 @@ class BusinessesViewController: UIViewController {
         
         // Initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), forControlEvents: UIControlEvents.ValueChanged)
-        tableView.insertSubview(refreshControl, atIndex: 0)
+        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
+        tableView.insertSubview(refreshControl, at: 0)
 
         tableView.estimatedRowHeight = 150
         tableView.rowHeight = UITableViewAutomaticDimension
@@ -41,7 +41,7 @@ class BusinessesViewController: UIViewController {
         doSearch()
     }
     
-    func refreshControlAction(refreshControl: UIRefreshControl) {
+    func refreshControlAction(_ refreshControl: UIRefreshControl) {
         guard let client = YelpClient.sharedInstance else { return}
         client.searchWithTerm(searchString, sort: filters.sortBy, categories: filters.categories, deals: filters.hasDeal, completion: { (business, error) in
             self.businessArr = business
@@ -51,14 +51,14 @@ class BusinessesViewController: UIViewController {
         refreshControl.endRefreshing()
     }
     // Perform the search.
-    private func doSearch() {
-        MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+    fileprivate func doSearch() {
+        MBProgressHUD.showAdded(to: self.view, animated: true)
         // Perform request to Yelp API to get the list of repositories
         guard let client = YelpClient.sharedInstance else { return}
         client.searchWithTerm(searchString, sort: filters.sortBy, categories: filters.categories, deals: filters.hasDeal, completion: { (business, error) in
             self.businessArr = business
             self.tableView.reloadData()
-            MBProgressHUD.hideHUDForView(self.view, animated: true)
+            MBProgressHUD.hide(for: self.view, animated: true)
         })
     }
 
@@ -68,8 +68,8 @@ class BusinessesViewController: UIViewController {
     }
     
 //      MARK: - Navigation
-     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        let navController = segue.destinationViewController as! UINavigationController
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let navController = segue.destination as! UINavigationController
         let filtersVC = navController.topViewController as! FiltersViewController
         filtersVC.delegate = self
         filtersVC.filterObject = filters
@@ -78,46 +78,46 @@ class BusinessesViewController: UIViewController {
 }
 extension BusinessesViewController: UITableViewDataSource, UITableViewDelegate {
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard let _businessArr = businessArr else {return 0 }
         return _businessArr.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("cell") as! BusinessesTableViewCell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell") as! BusinessesTableViewCell
         guard let _businessArr = businessArr else { return cell }
         cell.business = _businessArr[indexPath.row]
         return cell
     }
 }
 extension BusinessesViewController: UISearchBarDelegate {
-    func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool {
+    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
         searchBar.setShowsCancelButton(true, animated: true)
         return true;
     }
     
-    func searchBarShouldEndEditing(searchBar: UISearchBar) -> Bool {
+    func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
         searchBar.setShowsCancelButton(false, animated: true)
         return true;
     }
     
-    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text = ""
         searchString = ""
         searchBar.resignFirstResponder()
         doSearch()
     }
     
-    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchString = searchBar.text!
         searchBar.resignFirstResponder()
         doSearch()
     }
-    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         print(searchText)
         myTimer.invalidate()
         searchString = searchText
-        myTimer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: #selector(BusinessesViewController.searchInTime), userInfo: nil, repeats: false)
+        myTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(BusinessesViewController.searchInTime), userInfo: nil, repeats: false)
     }
     func searchInTime(){
         doSearch()
@@ -126,7 +126,7 @@ extension BusinessesViewController: UISearchBarDelegate {
 }
 
 extension BusinessesViewController: FiltersViewControllerDelegate {
-    func filtersViewControllerDelegate(filtersViewController: FiltersViewController, didSet filters: Filters) {
+    func filtersViewControllerDelegate(_ filtersViewController: FiltersViewController, didSet filters: Filters) {
         self.filters = filters
         doSearch()
     }

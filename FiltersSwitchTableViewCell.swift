@@ -9,7 +9,7 @@
 import UIKit
 
 @objc protocol FiltersSwitchDelegate {
-    optional func filtersSwitchDelegate(filtersSwitchTableViewCell: FiltersSwitchTableViewCell, didSet isSelected: Bool)
+    @objc optional func filtersSwitchDelegate(_ filtersSwitchTableViewCell: FiltersSwitchTableViewCell, didSet isSelected: Bool)
 }
 class FiltersSwitchTableViewCell: UITableViewCell {
 
@@ -30,7 +30,7 @@ class FiltersSwitchTableViewCell: UITableViewCell {
 //        optionSwitch.addSubview(mainSwitch)
     }
     
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 //        optionSwitch.onImage = UIImage(named: "expand_arrow")
 //        optionSwitch.offImage = UIImage(named: "expand_arrow")
@@ -40,8 +40,8 @@ class FiltersSwitchTableViewCell: UITableViewCell {
 //        isSwitched = sender.on
 //        delegate?.filtersSwitchDelegate!(self, didSet: isSwitched)
 //    }
-    @IBAction func onSWitch(sender: UISwitch) {
-        isSwitched = sender.on
+    @IBAction func onSWitch(_ sender: UISwitch) {
+        isSwitched = sender.isOn
         delegate?.filtersSwitchDelegate!(self, didSet: isSwitched)
         
     }

@@ -9,7 +9,7 @@ target 'MyYelp' do
 
   # Pods for MyYelp
   pod 'AFNetworking'
-  pod 'OAuthSwift', '~> 0.5.0'
+  pod 'OAuthSwift'
   pod 'MBProgressHUD'
 
 end

@@ -12,10 +12,10 @@ class Business: NSObject {
     
     let name: String?
     let address: String?
-    let imageURL: NSURL?
+    let imageURL: URL?
     let categories: String?
     let distance: String?
-    let ratingImageURL: NSURL?
+    let ratingImageURL: URL?
     let reviewCount: NSNumber?
     
     init(dictionary: NSDictionary) {
@@ -23,7 +23,7 @@ class Business: NSObject {
         
         let imageURLString = dictionary["image_url"] as? String
         if imageURLString != nil {
-            imageURL = NSURL(string: imageURLString!)!
+            imageURL = URL(string: imageURLString!)!
         } else {
             imageURL = nil
         }
@@ -53,7 +53,7 @@ class Business: NSObject {
                 let categoryName = category[0]
                 categoryNames.append(categoryName)
             }
-            categories = categoryNames.joinWithSeparator(", ")
+            categories = categoryNames.joined(separator: ", ")
         } else {
             categories = nil
         }
@@ -68,7 +68,7 @@ class Business: NSObject {
         
         let ratingImageURLString = dictionary["rating_img_url_large"] as? String
         if ratingImageURLString != nil {
-            ratingImageURL = NSURL(string: ratingImageURLString!)
+            ratingImageURL = URL(string: ratingImageURLString!)
         } else {
             ratingImageURL = nil
         }
@@ -76,7 +76,7 @@ class Business: NSObject {
         reviewCount = dictionary["review_count"] as? NSNumber
     }
     
-    class func businesses(array array: [NSDictionary]) -> [Business] {
+    class func businesses(array: [NSDictionary]) -> [Business] {
         var businesses = [Business]()
         for dictionary in array {
             let business = Business(dictionary: dictionary)

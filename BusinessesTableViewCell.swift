@@ -29,14 +29,14 @@ class BusinessesTableViewCell: UITableViewCell {
                 //                    self.restaurantImageView.alpha = 1.0
                 //                    }, completion: nil)
                 
-                restaurantImg.setImageWithURL(self.business.imageURL!)
+                restaurantImg.setImageWith(self.business.imageURL!)
                 
             } else {
                 restaurantImg.image = UIImage(named: "noImage")
             }
             nameLabel.text = business?.name
             distanceLabel.text = business?.distance
-            reviewImg.setImageWithURL(business.ratingImageURL!)
+            reviewImg.setImageWith(business.ratingImageURL!)
             guard let reviewNumber = business.reviewCount else {
                 reviewCountLabel.text = "No review"
                 return
@@ -51,7 +51,7 @@ class BusinessesTableViewCell: UITableViewCell {
         super.awakeFromNib()
     }
     
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
     }
 

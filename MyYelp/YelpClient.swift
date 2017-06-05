@@ -15,67 +15,67 @@ let yelpToken = "uRcRswHFYa1VkDrGV6LAW2F8clGh5JHV"
 let yelpTokenSecret = "mqtKIxMIR4iBtBPZCmCLEb-Dz3Y"
 
 enum YelpSortMode: Int {
-    case BestMatched = 0, Distance, HighestRated
+    case bestMatched = 0, distance, highestRated
 }
 
 class YelpClient : OAuthSwiftClient {
+    
+    private static var __once: () = {
+            return YelpClient(consumerKey: yelpConsumerKey, consumerSecret: yelpConsumerSecret, oauthToken: yelpToken, oauthTokenSecret: yelpTokenSecret, version: .oauth2)
+//        YelpClient(consumerKey: yelpConsumerKey, consumerSecret: yelpConsumerSecret, accessToken: yelpToken, accessTokenSecret: yelpTokenSecret)
+        }()
     
     var accessToken: String!
     var accessSecret: String!
     
     class var sharedInstance : YelpClient? {
         struct Static {
-            static var token : dispatch_once_t = 0
+            static var token : Int = 0
             static var instance : YelpClient? = nil
         }
         
-        dispatch_once(&Static.token) {
-            Static.instance = YelpClient(consumerKey: yelpConsumerKey, consumerSecret: yelpConsumerSecret, accessToken: yelpToken, accessTokenSecret: yelpTokenSecret)
-        }
+        _ = YelpClient.__once
         return Static.instance
     }
 
     
-    func searchWithTerm(term: String, completion: ([Business], NSError!) -> Void) {
+    func searchWithTerm(_ term: String, completion: @escaping ([Business], NSError?) -> Void) {
         return searchWithTerm(term, sort: nil, categories: nil, deals: nil, completion: completion)
     }
 
-    func searchWithTerm(term: String, sort: Int?, categories: [String]?, deals: Bool?, completion: ([Business], NSError!) -> Void) {
+    func searchWithTerm(_ term: String, sort: Int?, categories: [String]?, deals: Bool?, completion: @escaping ([Business], NSError?) -> Void) {
         // For additional parameters, see http://www.yelp.com/developers/documentation/v2/search_api
         
         // Default the location to San Francisco
-        var parameters: [String : AnyObject] = ["term": term, "ll": "37.785771,-122.406165"]
+        var parameters: [String : AnyObject] = ["term": term as AnyObject, "ll": "37.785771,-122.406165" as AnyObject]
         
         if sort != nil {
 //            parameters["sort"] = sort!.rawValue
-            parameters["sort"] = sort
+            parameters["sort"] = sort as AnyObject
         }
         
         if categories != nil && categories!.count > 0 {
-            parameters["category_filter"] = (categories!).joinWithSeparator(",")
+            parameters["category_filter"] = (categories!).joined(separator: ",") as AnyObject
         }
         
         if deals != nil {
-            parameters["deals_filter"] = deals!
+            parameters["deals_filter"] = deals! as AnyObject
         }
         
         print(parameters)
-        YelpClient.sharedInstance?.get("https://api.yelp.com/v2/search", parameters: parameters, headers: nil, success: { (data, response) in
-            
-            let jsonData = try! NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments) as? NSDictionary
+        YelpClient.sharedInstance?.get("https://api.yelp.com/v2/search", parameters: parameters, headers: nil, success: { (response) in
+            let jsonData = try! JSONSerialization.jsonObject(with: response.data, options: JSONSerialization.ReadingOptions.allowFragments) as? NSDictionary
             
             //            print(jsonData)
             
             let businesses =  Business(dictionary: jsonData!)
-//            completion(bu, <#T##NSError!#>)
             let dictionaries = jsonData!["businesses"] as? [NSDictionary]
             if dictionaries != nil {
                 completion(Business.businesses(array: dictionaries!), nil)
             }
-        }) { (error) in
+        }, failure: { (error) in
             print(error)
-        }
-        
+        })
 //        return self.GET("search", parameters: parameters, success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
 //            let dictionaries = response["businesses"] as? [NSDictionary]
 //            if dictionaries != nil {
