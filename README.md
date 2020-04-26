@@ -4,7 +4,7 @@ MyYelp is a Yelp search app using the [Yelp API](http://www.yelp.com/developers/
 
 Time spent: 20 hours spent in total
 
-## User Stories
+## User Stories 
 
 The following **required** functionality is completed:
 
@@ -53,7 +53,7 @@ Describe any challenges encountered while building the app.
 
 ## License
 
-    Copyright 2016 Nhung Huynh
+    Copyright 2016 Nhung Huynh (Ecko)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
